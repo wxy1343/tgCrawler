@@ -4,3 +4,4 @@ Telethon
 sqlalchemy
 pysocks
 python-socks
+async_timeout
