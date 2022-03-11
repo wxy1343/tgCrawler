@@ -1,6 +1,5 @@
-aiomysql
-requests
-Telethon
+aiomysql==0.0.22
+Telethon==1.23.0
 sqlalchemy
 pysocks
 python-socks
