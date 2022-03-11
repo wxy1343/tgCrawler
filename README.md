@@ -21,7 +21,7 @@ CREATE DATABASE 数据库名称;
 api_id = 0
 api_hash = ''         # 获取api_id和api_hash：https://my.telegram.org/apps
 bot_token = ''        # 机器人token，找@BotFather创建，使用手机登录可不填
-entity = ''           # 要爬取群组的url或者用户名
+entity = ''           # 设置要爬取的群组url或用户，不填全爬
 phone = ''            # 手机需要+区号
 tg_password = ''      # 密码
 proxy = (socks.SOCKS5, 'localhost', 2333) # 代理
