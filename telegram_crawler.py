@@ -7,6 +7,7 @@
 import asyncio
 
 import aiomysql.sa as aio_sa
+import pymysql
 import socks
 import telethon
 from aiomysql.sa import SAConnection
@@ -41,36 +42,31 @@ async def main(engine, entity, phone=None, password=None, bot_token=None, proxy=
     :param proxy: 代理
     :return:
     """
-    client: telethon.client.telegramclient.TelegramClient = await TelegramClient('bot', api_id, api_hash,
+    client: telethon.client.telegramclient.TelegramClient = await TelegramClient('tgCrawler', api_id, api_hash,
                                                                                  proxy=proxy).start(phone=lambda: phone,
                                                                                                     password=lambda: password,
                                                                                                     bot_token=bot_token)
 
-    async def start():
-        sql_create = """CREATE TABLE IF NOT EXISTS %s (
-                          `mid` int(10) NOT NULL,
-                          `sid` int(10) DEFAULT NULL,
-                          `time` datetime DEFAULT NULL,
-                          `text` text COLLATE utf8mb4_bin,
-                          PRIMARY KEY (`mid`)
-                        ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;"""
-        me = await client.get_me()
-        print(me.username)
+    async def start(entity):
         e = await client.get_entity(entity)
+        title = e.title if hasattr(e, 'title') else None
+        username = e.username if hasattr(e, 'username') else None
+        print(f'{username}|{title}: {e.id}')
+        table_name = username or str(e.id)
+        table_name = '_' + table_name if table_name.isdigit() else table_name
         try:
-            print(e.title)
-        except AttributeError:
-            pass
-        sql_create %= e.username
-        await execute(engine, sql_create)
-        sql_insert = 'INSERT INTO {} ( mid, sid, time, text ) VALUES ( %s, %s, %s, %s );'.format(e.username)
-        sql_get_msg_id = 'select mid from {} order by mid desc limit 1;'.format(e.username)
+            await execute(engine, sql_create % table_name)
+        except pymysql.err.ProgrammingError:
+            raise
+        sql_insert = 'INSERT INTO {} ( mid, sid, time, text ) VALUES ( %s, %s, %s, %s );'.format(table_name)
+        sql_get_msg_id = 'select mid from {} order by mid desc limit 1;'.format(table_name)
         data = await (await execute(engine, sql_get_msg_id)).fetchone()
         msg_id = data[0] if data else 0
         async for msg in client.iter_messages(e, reverse=True, offset_id=msg_id):
             msg: MessageService
             if msg.message is not None:
-                text = str(msg.id) + '|' + str(msg.date) + '|'
+                text = (title + '|' + table_name if title else table_name) + '|' + str(msg.id) + '|' + str(
+                    msg.date) + '|'
                 sid = None
                 if msg.sender is not None:
                     sender = msg.sender
@@ -86,20 +82,35 @@ async def main(engine, entity, phone=None, password=None, bot_token=None, proxy=
                 dt = msg.date.strftime("%Y-%m-%d %H:%M:%S")
                 print(text)
                 await execute(engine, sql_insert, mid, sid, dt, msg.raw_text)
-                # with open(f'{e.username}.txt', 'a', encoding='utf-8') as f:
+                # with open(f'{username}.txt', 'a', encoding='utf-8') as f:
                 #     f.write(text + '\n')
 
-    await start()
+    sql_create = """CREATE TABLE IF NOT EXISTS %s (
+                              `mid` int(10) NOT NULL,
+                              `sid` int(10) DEFAULT NULL,
+                              `time` datetime DEFAULT NULL,
+                              `text` text COLLATE utf8mb4_bin,
+                              PRIMARY KEY (`mid`)
+                            ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;"""
+    me = await client.get_me()
+    print(f'{me.username}: {me.id}')
+    if entity:
+        await start(entity)
+    else:
+        tasks = []
+        async for dialog in client.iter_dialogs():
+            tasks.append(asyncio.ensure_future(start(dialog.entity)))
+        await asyncio.wait(tasks)
     await client.disconnect()
 
 
 api_id = 0
 api_hash = ''  # 获取api_id和api_hash：https://my.telegram.org/apps
 bot_token = ''  # 机器人token，找@BotFather创建，使用手机登录可不填
-entity = 'https://t.me/aliyundriveShare'
+entity = ''  # 设置要爬取的群组url或用户，不填全爬
 phone = ''  # 手机需要+区号
 tg_password = ''  # 密码
-proxy = (socks.SOCKS5, 'localhost', 2333)  # 代理
+proxy = (socks.SOCKS5, 'localhost', 2333)  # 代理 
 host = 'localhost'  # 数据库地址
 port = 3306  # 数据库端口
 user = ''  # 数据库账号
