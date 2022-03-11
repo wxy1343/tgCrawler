@@ -1,0 +1,6 @@
+aiomysql
+requests
+Telethon
+sqlalchemy
+pysocks
+python-socks
