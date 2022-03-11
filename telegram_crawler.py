@@ -57,7 +57,10 @@ async def main(engine, entity, phone=None, password=None, bot_token=None, proxy=
         me = await client.get_me()
         print(me.username)
         e = await client.get_entity(entity)
-        print(e.title)
+        try:
+            print(e.title)
+        except AttributeError:
+            pass
         sql_create %= e.username
         await execute(engine, sql_create)
         sql_insert = 'INSERT INTO {} ( mid, sid, time, text ) VALUES ( %s, %s, %s, %s );'.format(e.username)
