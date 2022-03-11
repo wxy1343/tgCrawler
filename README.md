@@ -10,7 +10,7 @@
 api_id = 0
 api_hash = ''  # 获取api_id和api_hash：https://my.telegram.org/apps
 bot_token = ''  # 机器人token，找@BotFather创建，使用手机登录可不填
-entity = '' # 要爬取群组的url
+entity = '' # 要爬取群组的url或者用户名
 phone = ''  # 手机需要+区号
 tg_password = ''  # 密码
 proxy = (socks.SOCKS5, 'localhost', 2333)  # 代理
@@ -23,4 +23,4 @@ connect_timeout = 10  # 连接数据库超时时间
 charset = 'utf8mb4'  # 数据库编码
 ```
 ## 4.运行
-* `python telegram_group_crawler.py`
+* `python telegram_crawler.py`
