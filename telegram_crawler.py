@@ -48,12 +48,12 @@ async def main(engine, entity, phone=None, password=None, bot_token=None, proxy=
 
     async def start():
         sql_create = """CREATE TABLE IF NOT EXISTS %s (
-                         `mid`  INT(10) NOT NULL,
-                         `sid`  INT(10),
-                         `time` DATETIME,
-                         `text` TEXT(1024),
-                         PRIMARY KEY ( `mid` )
-                         )DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin"""
+                          `mid` int(10) NOT NULL,
+                          `sid` int(10) DEFAULT NULL,
+                          `time` datetime DEFAULT NULL,
+                          `text` text COLLATE utf8mb4_bin,
+                          PRIMARY KEY (`mid`)
+                        ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;"""
         me = await client.get_me()
         print(me.username)
         e = await client.get_entity(entity)
