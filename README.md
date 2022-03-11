@@ -3,7 +3,9 @@
 ## 1.安装
 * `git clone https://github.com/wxy1343/tgCrawler`
 * pip install -r requirements.txt
-## 2.修改配置
+## 2.创建数据库
+* `CREATE DATABASE 数据库名称;`
+## 3.修改配置
 ```python3
 api_id = 0
 api_hash = ''  # 获取api_id和api_hash：https://my.telegram.org/apps
@@ -20,5 +22,5 @@ db = ''  # 数据库名称
 connect_timeout = 10  # 连接数据库超时时间
 charset = 'utf8mb4'  # 数据库编码
 ```
-## 3.运行
+## 4.运行
 * `python telegram_group_crawler.py`
