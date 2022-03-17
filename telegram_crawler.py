@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2022/3/10 18:16
 # @Author  : wxy1343
-# @File    : telegram_group_crawler.py
+# @File    : telegram_crawler.py
 
 import asyncio
 
